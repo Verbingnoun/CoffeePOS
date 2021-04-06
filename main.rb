@@ -1,17 +1,15 @@
 require './classes/coffee.rb'
+require 'csv'
 
 # sales = [ {small: 0}, {medium: 0} {large: 0} ]
 
-# small = 2
-# medium = 3
-# large = 4
-
 puts "Welcome to CoffeePOS!"
+# puts inventory total for milk, cups and beans
 
 def mainMenu
     puts "\e[H\e[2J"
     puts "-----------------------------------------------"
-    puts "1.New Order   2.Inventory  3.Loyalty Program"
+    puts "1. New Order   2. Inventory  3. Loyalty Program   4. End of day"
     puts "Enter the number of the option you would like"
     puts "-----------------------------------------------"
     action = gets.chomp.downcase 
@@ -22,6 +20,8 @@ def mainMenu
         # inventory = Inventory.new
     elsif action == "3"
         # loyalty = Loyalty.new
+    elsif action == "4"
+        # end_of_day = Eod.new
     else
         puts "Please enter 1, 2 or 3"
         mainMenu
@@ -29,3 +29,5 @@ def mainMenu
 end
 
 mainMenu
+
+CSV.read("inventory.csv")
