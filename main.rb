@@ -18,13 +18,12 @@ def coffeeOrder(inventory, loyalty)
         puts "Sugar?"
         order_hash[:sugar] = gets.chomp.downcase
         puts "Enter loyalty card number if available, else type no"
-        order_hash[:loyalty_num] = gets.chomp.to_i
-        p order_hash
+        order_hash[:loyalty_num] = gets.chomp
         puts "Is this order correct? yes/no/main-menu"
         response = gets.chomp.downcase
         if response == "yes"
             updated_inventory = removeCup(inventory)
-            # checkLoyalty(loyalty, loyalty_num)
+            checkLoyalty(loyalty, order_hash[:loyalty_num])
             return updated_inventory
         elsif response == "main-menu"
             return inventory
@@ -59,26 +58,26 @@ end
 
 
 
-def checkLoyalty(array, loyalty)
-    result = array.each do |item|
-        if  loyalty ==  item[:loyalty_number]
-            result[:qty] + 1
-             if result[:qty] == 5
-                puts "Free 5th Coffee"
-                sleep 5
-                result[:qty] = 0
-            end
+def checkLoyalty(array, loyalty_num)
+    result = array.find do |item|
+        if loyalty_num == item[:loyalty_number] and item[:qty] == 5
+            puts "Loyalty number found"
+            puts "Free Coffee! Congratulations"
+            sleep 5
+            item[:qty] = 0
+        elsif loyalty_num.to_s == item[:loyalty_number] and item[:qty] != 5
+            puts "Loyalty number found"
+            puts "#{5 - item[:qty]} more orders till next free coffee"
+            sleep 5
+            item[:qty] + 1
+        elsif loyalty_num == 0
+        else
+            puts "Loyalty number not found"
+            sleep 5
         end
     end
 end
 
-# def displayLoyalty(inventory,loyalty)
-#     puts "\e[H\e[2J"
-#     puts "Enter loyalty number"
-#     result = gets.chomp.to_i
-#     loyalty.each do |item|
-#     end
-# end
 
 def endofDay
     #  write inventory array to inventory.csv
@@ -131,10 +130,21 @@ until user_exit
             #Execute edit method
         end
     elsif action == "3"
-        puts "\e[H\e[2J"
-        puts "Enter loyalty number"
-        result = gets.chomp.to_i
-        # loyalty.each do |item|
+    puts "\e[H\e[2J"
+    puts "Enter loyalty number"
+    response = gets.chomp
+    loyalty.find do |line|
+        if response == line[:loyalty_number]
+            puts "Loyalty number found"
+            puts "#{5 - line[:qty]} more orders till next free coffee"
+            sleep 3
+            user_exit = true
+        elsif response != line[:loyalty_number]
+            puts "Loyalty number not found"
+            sleep 3
+            user_exit = true
+        end
+     end
     elsif action == "4"
         user_exit = true
     else
