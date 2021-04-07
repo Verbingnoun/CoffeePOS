@@ -3,9 +3,9 @@ require 'csv'
 inventory = []
 loyalty = []
 prices = {small: 2, medium: 3, large: 4}
-sales = {small: 0, medium: 0, large: 0}
+sales_hash = {small: 0, medium: 0, large: 0}
 
-def coffeeOrder(inventory, loyalty)
+def coffeeOrder(inventory, loyalty, sales_hash)
     order_hash = {}
     loop do
         puts "\e[H\e[2J"
@@ -19,9 +19,11 @@ def coffeeOrder(inventory, loyalty)
         order_hash[:sugar] = gets.chomp.downcase
         puts "Enter loyalty card number if available, else type no"
         order_hash[:loyalty_num] = gets.chomp
+        puts "#{order_hash[:size]} #{order_hash[:type]} with #{order_hash[:sugar]} sugar and #{order_hash[:milk]} milk"
         puts "Is this order correct? yes/no/main-menu"
         response = gets.chomp.downcase
         if response == "yes"
+            addToSales(order_hash[:size], sales_hash)
             updated_inventory = removeCup(inventory)
             checkLoyalty(loyalty, order_hash[:loyalty_num])
             return updated_inventory
@@ -29,6 +31,20 @@ def coffeeOrder(inventory, loyalty)
             return inventory
         end
     end
+end
+
+def addToSales(size, sales_hash)
+    sales_hash.include?("large")
+    puts "Hello"
+    sleep 2
+end
+
+def removeCup(array)
+    # Find cups
+    result = array.find { |item| "cups" == item[:name] }
+    # remove 1 cup
+    result[:qty] = result[:qty] - 1
+    return array
 end
 
 def removeCup(array)
@@ -59,21 +75,20 @@ end
 
 
 def checkLoyalty(array, loyalty_num)
-    result = array.find do |item|
+    array.each do |item|
         if loyalty_num == item[:loyalty_number] and item[:qty] == 5
             puts "Loyalty number found"
             puts "Free Coffee! Congratulations"
-            sleep 5
             item[:qty] = 0
-        elsif loyalty_num.to_s == item[:loyalty_number] and item[:qty] != 5
+            sleep 5
+        elsif loyalty_num == item[:loyalty_number] and item[:qty] != 5
+            item[:qty] += 1
             puts "Loyalty number found"
             puts "#{5 - item[:qty]} more orders till next free coffee"
             sleep 5
-            item[:qty] + 1
-        elsif loyalty_num == 0
-        else
-            puts "Loyalty number not found"
-            sleep 5
+            
+        else 
+            loyalty_num == 0
         end
     end
 end
@@ -115,7 +130,7 @@ until user_exit
     puts "-----------------------------------------------------------------"
     action = gets.chomp.downcase 
     if action == "1"
-        inventory = coffeeOrder(inventory, loyalty)
+        inventory = coffeeOrder(inventory, loyalty, sales_hash)
     elsif action == "2"
         puts "\e[H\e[2J"
         inventory.each do |line|
@@ -130,21 +145,24 @@ until user_exit
             #Execute edit method
         end
     elsif action == "3"
-    puts "\e[H\e[2J"
-    puts "Enter loyalty number"
-    response = gets.chomp
-    loyalty.find do |line|
-        if response == line[:loyalty_number]
-            puts "Loyalty number found"
-            puts "#{5 - line[:qty]} more orders till next free coffee"
-            sleep 3
-            user_exit = true
-        elsif response != line[:loyalty_number]
-            puts "Loyalty number not found"
-            sleep 3
-            user_exit = true
+        puts "\e[H\e[2J"
+        puts "Create or check loyalty number? check/create"
+        response = gets.chomp
+        if response == "check"
+            puts "Enter loyalty number"
+            reponse = gets.chomp
+            loyalty.each do |line|
+                if response == line[:loyalty_number]
+                    puts "Loyalty number found"
+                    puts "#{5 - line[:qty]} more orders till next free coffee"
+                    sleep 3
+                    return
+                end
+            end
         end
-     end
+        elsif response == create
+            puts "Please enter desired loyalty number"
+            response = gets.chomp
     elsif action == "4"
         user_exit = true
     else
