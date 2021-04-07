@@ -34,9 +34,9 @@ def coffeeOrder(inventory, loyalty, sales_hash)
 end
 
 def addToSales(size, sales_hash)
-    sales_hash.include?("large")
-    puts "Hello"
-    sleep 2
+    sales_hash[size.to_sym] = sales_hash[size.to_sym] + 1
+    p sales_hash
+    
 end
 
 def removeCup(array)
@@ -147,10 +147,11 @@ until user_exit
     elsif action == "3"
         puts "\e[H\e[2J"
         puts "Create or check loyalty number? check/create"
+        # response = gets.chomp
         response = gets.chomp
         if response == "check"
             puts "Enter loyalty number"
-            reponse = gets.chomp
+            response = gets.chomp
             loyalty.each do |line|
                 if response == line[:loyalty_number]
                     puts "Loyalty number found"
@@ -159,10 +160,25 @@ until user_exit
                     return
                 end
             end
+        elsif response == "create"
+            # puts "Please enter desired loyalty number"
+            new_loyalty_number = false
+            until new_loyalty_number
+                random_num = Random.new()
+                random_num = random_num.rand(loyalty.length*+1).to_s
+                # response = gets.chomp
+                # (1..100).find          { |i| i % 5 == 0 && i % 7 == 0 }   #=> 35
+                if loyalty.find { |element| element[:loyalty_number] == random_num }
+                    puts "Number is taken"
+                else
+                    loyalty.push({loyalty_number: random_num, qty: 0})
+                    puts "New loyalty number created"
+                    new_loyalty_number = true
+                end
+            end
+            p loyalty
+            gets
         end
-        elsif response == create
-            puts "Please enter desired loyalty number"
-            response = gets.chomp
     elsif action == "4"
         user_exit = true
     else
