@@ -140,13 +140,19 @@ def checkLoyalty(array, loyalty_num, order_hash, prices)
 end
 
 
-def endofDay
+def dayEnd (inventory, loyalty)
     #  write inventory array to inventory.csv
     CSV.open('./csv/inventory.csv', "w") do |csv|
          inventory.each do |item|
         csv << [item[:name], item[:qty]]
         end
     end
+
+    CSV.open('./csv/loyalty.csv', "w") do |csv|
+        loyalty.each do |item|
+       csv << [item[:loyalty_number], item[:qty]]
+       end
+   end
 end
 
 #open inventory.csv and save to array
@@ -184,7 +190,6 @@ until user_exit
         puts "         Options"
         puts "1. Edit Inventory 2. Main Menu"
         puts "--------------------------------------"
-        p inventory
         inventory.each do |line|
             puts "You have #{line[:qty]} units of #{line[:name]}"
         end
@@ -235,6 +240,7 @@ until user_exit
             gets
         end
     elsif action == "4"
+        dayEnd(inventory, loyalty)
         user_exit = true
     else
         puts "Please enter 1, 2, 3 or 4"
