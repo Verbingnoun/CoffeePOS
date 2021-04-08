@@ -15,7 +15,7 @@ def coffeeOrder(inventory, loyalty, sales_hash, prices)
         puts "What size? large/medium/small"
         order_hash[:size] = gets.chomp.downcase
         puts "\e[H\e[2J"
-        puts "Milk? full cream/lactose free/soy/no"
+        puts "Milk? full cream/soy/no"
         order_hash[:milk] = gets.chomp.downcase
         puts "\e[H\e[2J"
         puts "Sugar? yes/no"
@@ -28,8 +28,15 @@ def coffeeOrder(inventory, loyalty, sales_hash, prices)
         puts "Is this order correct? yes/no/main-menu"
         response = gets.chomp.downcase
         if response == "yes"
+            updated_inventory = removeInventory(inventory, "cups")
+            updated_inventory = removeInventory(inventory, "beans")
+            if order_hash[:sugar] == "yes"
+                updated_inventory = removeInventory(inventory, "sugar")
+            end
+            if order_hash[:milk] == "full cream" or order_hash[:milk] == "soy"
+                updated_inventory = removeInventory(inventory,"milk")
+            end
             addToSales(order_hash[:size], sales_hash)
-            updated_inventory = removeCup(inventory)
             checkLoyalty(loyalty, order_hash[:loyalty_num], order_hash, prices)
             return updated_inventory
         elsif response == "main-menu"
@@ -59,7 +66,10 @@ def addToSales(size, sales_hash)
     sales_hash[size.to_sym] = sales_hash[size.to_sym] + 1
 end
 
-def RemoveInventory(array, product)
+def removeInventory(inventory, product)
+    result = inventory.find { |item| product == item[:name]  }
+    result[:qty] -= 1
+    return inventory
 end
 
 def printPrice(order_hash, prices_hash)
@@ -174,6 +184,7 @@ until user_exit
         puts "         Options"
         puts "1. Edit Inventory 2. Main Menu"
         puts "--------------------------------------"
+        p inventory
         inventory.each do |line|
             puts "You have #{line[:qty]} units of #{line[:name]}"
         end
