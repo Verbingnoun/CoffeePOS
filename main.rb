@@ -11,15 +11,20 @@ def coffeeOrder(inventory, loyalty, sales_hash)
         puts "\e[H\e[2J"
         puts "What type of coffee?"
         order_hash[:type] = gets.chomp.downcase
-        puts "What size?"
+        puts "\e[H\e[2J"
+        puts "What size? large/medium/small"
         order_hash[:size] = gets.chomp.downcase
-        puts "Milk?"
+        puts "\e[H\e[2J"
+        puts "Milk? full cream/lactose free/soy/no"
         order_hash[:milk] = gets.chomp.downcase
-        puts "Sugar?"
+        puts "\e[H\e[2J"
+        puts "Sugar? yes/no"
         order_hash[:sugar] = gets.chomp.downcase
+        puts "\e[H\e[2J"
         puts "Enter loyalty card number if available, else type no"
         order_hash[:loyalty_num] = gets.chomp
-        puts "#{order_hash[:size]} #{order_hash[:type]} with #{order_hash[:sugar]} sugar and #{order_hash[:milk]} milk"
+        puts "\e[H\e[2J"
+        puts "#{order_hash[:size]} #{order_hash[:type]}, #{order_hash[:milk]} milk and loyalty number #{order_hash[:loyalty_num]}"
         puts "Is this order correct? yes/no/main-menu"
         response = gets.chomp.downcase
         if response == "yes"
@@ -35,9 +40,11 @@ end
 
 def addToSales(size, sales_hash)
     sales_hash[size.to_sym] = sales_hash[size.to_sym] + 1
-    p sales_hash
-    
 end
+
+def RemoveInventory(array, product)
+end
+
 
 def removeCup(array)
     # Find cups
@@ -47,7 +54,8 @@ def removeCup(array)
     return array
 end
 
-def removeCup(array)
+def removeSugar(array)
+    if order_hash.include?()
     # Find cups
     result = array.find { |item| "cups" == item[:name] }
     # remove 1 cup
@@ -77,18 +85,22 @@ end
 def checkLoyalty(array, loyalty_num)
     array.each do |item|
         if loyalty_num == item[:loyalty_number] and item[:qty] == 5
+            puts "\e[H\e[2J"
             puts "Loyalty number found"
             puts "Free Coffee! Congratulations"
             item[:qty] = 0
-            sleep 5
+            puts "Press enter to continue"
+            gets
         elsif loyalty_num == item[:loyalty_number] and item[:qty] != 5
             item[:qty] += 1
+            puts "\e[H\e[2J"
             puts "Loyalty number found"
             puts "#{5 - item[:qty]} more orders till next free coffee"
-            sleep 5
+            puts "Press enter to continue"
+            gets
             
         else 
-            loyalty_num == 0
+            next
         end
     end
 end
@@ -132,14 +144,17 @@ until user_exit
     if action == "1"
         inventory = coffeeOrder(inventory, loyalty, sales_hash)
     elsif action == "2"
+        inventory_exit = false
         puts "\e[H\e[2J"
-        inventory.each do |line|
-            puts "You have #{line[:qty]} units of #{line[:name]}"
-        end
         puts "--------------------------------------"
         puts "         Options"
         puts "1. Edit Inventory 2. Main Menu"
         puts "--------------------------------------"
+        inventory.each do |line|
+            puts "You have #{line[:qty]} units of #{line[:name]}"
+        end
+        p sales_hash
+       
         input = gets.chomp
         if input == "1"
             #Execute edit method
@@ -156,7 +171,7 @@ until user_exit
                 if response == line[:loyalty_number]
                     puts "Loyalty number found"
                     puts "#{5 - line[:qty]} more orders till next free coffee"
-                    sleep 3
+                    puts "Press enter to continue"
                     return
                 end
             end
@@ -165,7 +180,7 @@ until user_exit
             new_loyalty_number = false
             until new_loyalty_number
                 random_num = Random.new()
-                random_num = random_num.rand(loyalty.length*+1).to_s
+                random_num = random_num.rand(10000).to_s
                 # response = gets.chomp
                 # (1..100).find          { |i| i % 5 == 0 && i % 7 == 0 }   #=> 35
                 if loyalty.find { |element| element[:loyalty_number] == random_num }
@@ -173,10 +188,11 @@ until user_exit
                 else
                     loyalty.push({loyalty_number: random_num, qty: 0})
                     puts "New loyalty number created"
+                    puts "Your number is #{random_num}"
                     new_loyalty_number = true
                 end
             end
-            p loyalty
+            puts "Press enter to continue"
             gets
         end
     elsif action == "4"
