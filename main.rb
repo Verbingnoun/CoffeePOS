@@ -1,8 +1,5 @@
 require 'csv'
 
-#Instance of time class for writing csv with todays date and reading yesterdays sales.csv
-date = Time.new
-
 inventory = []
 loyalty = []
 prices = {small: 2, medium: 3, large: 4}
@@ -89,6 +86,7 @@ def checkLoyalty(array, loyalty_num, order_hash, prices)
             item[:qty] = 0
             puts "Press enter to continue"
             gets
+            return
         elsif loyalty_num == item[:loyalty_number] and item[:qty] != 5
             item[:qty] += 1
             puts "\e[H\e[2J"
@@ -97,11 +95,16 @@ def checkLoyalty(array, loyalty_num, order_hash, prices)
             printPrice(order_hash, prices)
             puts "Press enter to continue"
             gets
-        
-        else 
+            return
+        else
             next
         end
     end
+
+    puts "Loyalty number not found"
+        printPrice(order_hash, prices)
+        puts "Press enter to continue"
+        gets
 end
 
 
@@ -139,17 +142,15 @@ CSV.open("./csv/loyalty.csv") do |csv|
     end
 end
 
-
 puts "Welcome to CoffeePOS!"
-
-
 user_exit = false
 until user_exit
     puts "\e[H\e[2J"
-    puts "-----------------------------------------------------------------"
-    puts "1. New Order   2. Inventory  3. Loyalty Program  4. End of day"
-    puts "Enter the number of the option you would like"
-    puts "-----------------------------------------------------------------"
+    puts "---------------------------------------------------------------------------------------"
+    puts "1. New Order   2. Inventory  3. Loyalty Program  4. View Todays Sales  5. End of Day"
+    puts  
+    puts "                  Enter the number of the option you would like"
+    puts "---------------------------------------------------------------------------------------"
     action = gets.chomp.downcase 
     if action == "1"
         inventory = coffeeOrder(inventory, loyalty, sales_hash, prices)
@@ -185,17 +186,13 @@ until user_exit
                     puts "#{5 - line[:qty]} more orders till next free coffee"
                     puts "Press enter to continue"
                     gets
-                    return
                 end
             end
         elsif response == "create"
-            # puts "Please enter desired loyalty number"
             new_loyalty_number = false
             until new_loyalty_number
                 random_num = Random.new()
                 random_num = random_num.rand(10000).to_s
-                # response = gets.chomp
-                # (1..100).find          { |i| i % 5 == 0 && i % 7 == 0 }   #=> 35
                 if loyalty.find { |element| element[:loyalty_number] == random_num }
                     puts "Number is taken"
                 else
@@ -209,11 +206,26 @@ until user_exit
             puts "Press enter to continue"
             gets
         end
+    
+
     elsif action == "4"
+        puts "\e[H\e[2J"
+        puts "Today you have sold #{sales_hash[:small]} small coffees, #{sales_hash[:medium]} medium coffees and #{sales_hash[:large]} large coffees!"
+        puts "Press enter to return to menu"
+        gets
+        next
+    elsif action == "5"
         dayEnd(inventory, loyalty, sales_hash)
-        user_exit = true
+        puts "\e[H\e[2J"
+        puts "Are you sure you want to quit? All unsaved data will be lost! yes/no"
+        input = gets.chomp
+            if input == "yes"
+                user_exit = true
+            else
+                next 
+            end
     else
-        puts "Please enter 1, 2, 3 or 4"
+        puts "Please enter 1, 2, 3, 4 or 5"
         sleep 2
     end
 end
