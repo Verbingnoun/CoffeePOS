@@ -30,6 +30,8 @@ def coffeeOrder(inventory, loyalty, sales_hash)
         if response == "yes"
             addToSales(order_hash[:size], sales_hash)
             updated_inventory = removeCup(inventory)
+            # if order_hash[:sugar] == "yes"
+            #     updated_inventory = removeSugar(inventory)
             checkLoyalty(loyalty, order_hash[:loyalty_num])
             return updated_inventory
         elsif response == "main-menu"
@@ -38,8 +40,27 @@ def coffeeOrder(inventory, loyalty, sales_hash)
     end
 end
 
+def editInventory(inventory)
+    puts "\e[H\e[2J"
+    puts "What item would you like to edit? milk/beans/cups/sugar"
+    input = gets.chomp
+    result = inventory.find { |item| input == item[:name]}
+    puts "\e[H\e[2J"
+    puts "What is the new quantities of the selected product?"
+    input = gets.chomp.to_i
+    result[:qty] = input
+    puts "\e[H\e[2J"
+    puts "#{result[:qty]} units of #{result[:name]}"
+    puts "Item successfully edited"
+    puts "Press enter to continue"
+    gets
+    return inventory
+end
+
 def addToSales(size, sales_hash)
     sales_hash[size.to_sym] = sales_hash[size.to_sym] + 1
+    p sales_hash
+    gets
 end
 
 def RemoveInventory(array, product)
@@ -54,30 +75,31 @@ def removeCup(array)
     return array
 end
 
-def removeSugar(array)
-    if order_hash.include?()
-    # Find cups
-    result = array.find { |item| "cups" == item[:name] }
-    # remove 1 cup
-    result[:qty] = result[:qty] - 1
-    return array
-end
+# def removeSugar(array)
+#     if order_hash[:sugar] == true
+#         # Find cups
+#         result = array.find { |item| "sugar" == item[:name] }
+#         # remove 1 cup
+#         result[:qty] = result[:qty] - 1
+#         return array
+#     end
+# end
 
-def removeMilk(array)
-    #Find cups
-    result = array.find {|item| "milk" == item[:name] }
-    #remove 1 cup
-    result[:qty] = result[:qty] - 1
-    return array
-end
+# def removeMilk(array)
+#     #Find cups
+#     result = array.find {|item| "milk" == item[:name] }
+#     #remove 1 cup
+#     result[:qty] = result[:qty] - 1
+#     return array
+# end
 
-def removeBeans(array)
-    #Find cups
-    result = array.find {|item| "beans" == item[:name] }
-    #remove 1 cup
-    result[:qty] = result[:qty] - 1
-    return array
-end
+# def removeBeans(array)
+#     #Find cups
+#     result = array.find {|item| "beans" == item[:name] }
+#     #remove 1 cup
+#     result[:qty] = result[:qty] - 1
+#     return array
+# end
 
 
 
@@ -153,11 +175,11 @@ until user_exit
         inventory.each do |line|
             puts "You have #{line[:qty]} units of #{line[:name]}"
         end
-        p sales_hash
+        
        
         input = gets.chomp
         if input == "1"
-            #Execute edit method
+            editInventory(inventory)
         end
     elsif action == "3"
         puts "\e[H\e[2J"
@@ -165,13 +187,16 @@ until user_exit
         # response = gets.chomp
         response = gets.chomp
         if response == "check"
+            puts "\e[H\e[2J"
             puts "Enter loyalty number"
             response = gets.chomp
             loyalty.each do |line|
                 if response == line[:loyalty_number]
+                    puts "\e[H\e[2J"
                     puts "Loyalty number found"
                     puts "#{5 - line[:qty]} more orders till next free coffee"
                     puts "Press enter to continue"
+                    gets
                     return
                 end
             end
@@ -187,6 +212,7 @@ until user_exit
                     puts "Number is taken"
                 else
                     loyalty.push({loyalty_number: random_num, qty: 0})
+                    puts "\e[H\e[2J"
                     puts "New loyalty number created"
                     puts "Your number is #{random_num}"
                     new_loyalty_number = true
