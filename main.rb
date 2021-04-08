@@ -1,5 +1,8 @@
 require 'csv'
 
+#Instance of time class for writing csv with todays date and reading yesterdays sales.csv
+date = Time.new
+
 inventory = []
 loyalty = []
 prices = {small: 2, medium: 3, large: 4}
@@ -77,44 +80,6 @@ def printPrice(order_hash, prices_hash)
     puts "Total price is $#{prices_hash[size.to_sym]} "
 end
 
-
-def removeCup(array)
-    # Find cups
-    result = array.find { |item| "cups" == item[:name] }
-    # remove 1 cup
-    result[:qty] = result[:qty] - 1
-    return array
-end
-
-# def removeSugar(array)
-#     if order_hash[:sugar] == true
-#         # Find cups
-#         result = array.find { |item| "sugar" == item[:name] }
-#         # remove 1 cup
-#         result[:qty] = result[:qty] - 1
-#         return array
-#     end
-# end
-
-# def removeMilk(array)
-#     #Find cups
-#     result = array.find {|item| "milk" == item[:name] }
-#     #remove 1 cup
-#     result[:qty] = result[:qty] - 1
-#     return array
-# end
-
-# def removeBeans(array)
-#     #Find cups
-#     result = array.find {|item| "beans" == item[:name] }
-#     #remove 1 cup
-#     result[:qty] = result[:qty] - 1
-#     return array
-# end
-
-
-
-
 def checkLoyalty(array, loyalty_num, order_hash, prices)
     array.each do |item|
         if loyalty_num == item[:loyalty_number] and item[:qty] == 5
@@ -140,18 +105,23 @@ def checkLoyalty(array, loyalty_num, order_hash, prices)
 end
 
 
-def dayEnd (inventory, loyalty)
+def dayEnd (inventory, loyalty, sales_hash)
+    date = Time.new
+    date_today = date.strftime("%d_%m_%Y")
     #  write inventory array to inventory.csv
     CSV.open('./csv/inventory.csv', "w") do |csv|
          inventory.each do |item|
         csv << [item[:name], item[:qty]]
         end
     end
-
+    # write loyalty array to loyalty.csv
     CSV.open('./csv/loyalty.csv', "w") do |csv|
         loyalty.each do |item|
        csv << [item[:loyalty_number], item[:qty]]
        end
+    # create a file called "todays date".csv and write sales hash to file
+    # CSV.new('./csv/test.csv')
+    CSV.open("./csv/#{date_today}.csv", "w") {|csv| sales_hash.to_a.each {|elem| csv << elem} }
    end
 end
 
@@ -240,24 +210,10 @@ until user_exit
             gets
         end
     elsif action == "4"
-        dayEnd(inventory, loyalty)
+        dayEnd(inventory, loyalty, sales_hash)
         user_exit = true
     else
         puts "Please enter 1, 2, 3 or 4"
+        sleep 2
     end
 end
-
-
-
-
-# #Find cups in inventory
-# result = inventory.find {|item| "cups" == item[:name] }
-
-# #remove 1 cup
-# result[:qty] = result[:qty] - 1
-
-# #write inventory array to inventory.csv
-# CSV.open('./csv/inventory.csv', "w") do |csv|
-#     inventory.each do |item|
-#         csv << [item[:name], item[:qty]]
-#     end
