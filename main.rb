@@ -5,7 +5,7 @@ loyalty = []
 prices = {small: 2, medium: 3, large: 4}
 sales_hash = {small: 0, medium: 0, large: 0}
 
-def coffeeOrder(inventory, loyalty, sales_hash)
+def coffeeOrder(inventory, loyalty, sales_hash, prices)
     order_hash = {}
     loop do
         puts "\e[H\e[2J"
@@ -30,9 +30,7 @@ def coffeeOrder(inventory, loyalty, sales_hash)
         if response == "yes"
             addToSales(order_hash[:size], sales_hash)
             updated_inventory = removeCup(inventory)
-            # if order_hash[:sugar] == "yes"
-            #     updated_inventory = removeSugar(inventory)
-            checkLoyalty(loyalty, order_hash[:loyalty_num])
+            checkLoyalty(loyalty, order_hash[:loyalty_num], order_hash, prices)
             return updated_inventory
         elsif response == "main-menu"
             return inventory
@@ -59,11 +57,14 @@ end
 
 def addToSales(size, sales_hash)
     sales_hash[size.to_sym] = sales_hash[size.to_sym] + 1
-    p sales_hash
-    gets
 end
 
 def RemoveInventory(array, product)
+end
+
+def printPrice(order_hash, prices_hash)
+    size = order_hash[:size]
+    puts "Total price is $#{prices_hash[size.to_sym]} "
 end
 
 
@@ -104,7 +105,7 @@ end
 
 
 
-def checkLoyalty(array, loyalty_num)
+def checkLoyalty(array, loyalty_num, order_hash, prices)
     array.each do |item|
         if loyalty_num == item[:loyalty_number] and item[:qty] == 5
             puts "\e[H\e[2J"
@@ -118,9 +119,10 @@ def checkLoyalty(array, loyalty_num)
             puts "\e[H\e[2J"
             puts "Loyalty number found"
             puts "#{5 - item[:qty]} more orders till next free coffee"
+            printPrice(order_hash, prices)
             puts "Press enter to continue"
             gets
-            
+        
         else 
             next
         end
@@ -164,7 +166,7 @@ until user_exit
     puts "-----------------------------------------------------------------"
     action = gets.chomp.downcase 
     if action == "1"
-        inventory = coffeeOrder(inventory, loyalty, sales_hash)
+        inventory = coffeeOrder(inventory, loyalty, sales_hash, prices)
     elsif action == "2"
         inventory_exit = false
         puts "\e[H\e[2J"
