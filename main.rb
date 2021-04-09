@@ -11,6 +11,11 @@ loyalty = []
 prices = {small: 2, medium: 3, large: 4}
 sales_hash = {small: 0, medium: 0, large: 0}
 
+def multiply(num1, num2)
+    result = num1 * num2
+end
+
+
 def coffeeOrder(inventory, loyalty, sales_hash, prices)
     order_hash = {}
     loop do
@@ -56,17 +61,28 @@ def coffeeOrder(inventory, loyalty, sales_hash, prices)
 end
 
 def editInventory(inventory)
-    puts "\e[H\e[2J"
-    print "What item would you like to edit?" 
-    puts " milk/ beans/ cups/ sugar".colorize(:light_red)
-    input = gets.chomp.downcase
-    result = inventory.find { |item| input == item[:name]}
-    puts "\e[H\e[2J"
-    puts "What is the new quantity of the selected product?"
-    input = gets.chomp.to_i
-    result[:qty] = input
-    puts "\e[H\e[2J"
-    puts "#{result[:qty]}".colorize(:light_red) + " units of" + " #{result[:name]}".colorize(:light_red)
+    begin
+        puts "\e[H\e[2J"
+        print "What item would you like to edit?" 
+        puts " milk/ beans/ cups/ sugar".colorize(:light_red)
+        input = gets.chomp.downcase
+        result = inventory.find { |item| input == item[:name]}
+        puts "\e[H\e[2J"
+        puts "What is the new quantity of the selected product?"
+        input = gets.chomp.to_i
+        result[:qty] = input
+    rescue
+        puts "Error! Invalid inventory selection. Please try again"
+        sleep 4
+        retry
+    end
+    begin
+        puts "\e[H\e[2J"
+        puts "#{result[:qty]}".colorize(:light_red) + " units of" + " #{result[:name]}".colorize(:light_red)
+    rescue
+        puts "Error! Invalid inventory selection. Please try again"
+        sleep 4
+    end 
     puts "Item successfully edited"
     puts "Press enter to continue"
     gets
@@ -74,7 +90,13 @@ def editInventory(inventory)
 end
 
 def addToSales(size, sales_hash)
-    sales_hash[size.to_sym] = sales_hash[size.to_sym] + 1
+    begin
+        sales_hash[size.to_sym] = sales_hash[size.to_sym] + 1
+    rescue
+        puts "Error! Invalid size detected. Please use large / medium / small and retry order"
+        sleep 3
+        gets
+    end
 end
 
 def removeInventory(inventory, product)
@@ -142,7 +164,7 @@ end
 CSV.open("./csv/inventory.csv") do |csv|
     csv.each do |line| 
         inventory.push({name: line[0], qty: line[1].to_i})
-    end
+        end
 end
 
 #open loyalty.csv and save to array
@@ -237,6 +259,8 @@ until user_exit
         print "Today you have sold " + "#{sales_hash[:small]}".colorize(:light_red) + " small coffees," 
         print " #{sales_hash[:medium]}".colorize(:light_red) + " medium coffees and"
         puts " #{sales_hash[:large]}".colorize(:light_red) + " large coffees!"
+        print "In total you have made " 
+        puts "$#{multiply(sales_hash[:small], prices[:small]) + multiply(sales_hash[:medium], prices[:medium]) + multiply(sales_hash[:large], prices[:large])}".colorize(:light_green)
         puts "Press enter to return to menu"
         gets
     elsif action == "5"
