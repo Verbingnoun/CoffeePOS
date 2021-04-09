@@ -1,4 +1,9 @@
 require 'csv'
+require 'tty-screen'
+require 'tty-box'
+require 'colorize'
+require 'bundler'
+require 'tty-font'
 
 inventory = []
 loyalty = []
@@ -172,7 +177,7 @@ until user_exit
         end
     elsif action == "3"
         puts "\e[H\e[2J"
-        puts "Create or check loyalty number? check/create"
+        puts "Create or check loyalty number? check/create/main-menu"
         # response = gets.chomp
         response = gets.chomp
         if response == "check"
@@ -217,15 +222,17 @@ until user_exit
     elsif action == "5"
         dayEnd(inventory, loyalty, sales_hash)
         puts "\e[H\e[2J"
-        puts "Are you sure you want to quit? All unsaved data will be lost! yes/no"
+        puts "Exiting the program will save all changes to inventory, loyalty program and sales"
+        puts "Are you sure you want to quit? yes/no"
         input = gets.chomp
             if input == "yes"
+                puts "\e[H\e[2J"
                 user_exit = true
             else
                 next 
             end
     else
         puts "Please enter 1, 2, 3, 4 or 5"
-        sleep 2
+        sleep 3
     end
 end
