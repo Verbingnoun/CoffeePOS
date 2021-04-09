@@ -16,25 +16,25 @@ def coffeeOrder(inventory, loyalty, sales_hash, prices)
     loop do
         puts "\e[H\e[2J"
         print "What type of" 
-        puts " coffee?".colorize(:red)
+        puts " coffee?".colorize(:light_red)
         order_hash[:type] = gets.chomp.downcase
         puts "\e[H\e[2J"
         print "What size?" 
-        puts " large / medium / small".colorize(:red)
+        puts " large / medium / small".colorize(:light_red)
         order_hash[:size] = gets.chomp.downcase
         puts "\e[H\e[2J"
         print "Milk?"
-        puts " full cream / soy / no".colorize(:red)
+        puts " full cream / soy / no".colorize(:light_red)
         order_hash[:milk] = gets.chomp.downcase
         puts "\e[H\e[2J"
         print "Sugar?" 
-        puts " yes / no".colorize(:red)
+        puts " yes / no".colorize(:light_red)
         order_hash[:sugar] = gets.chomp.downcase
         puts "\e[H\e[2J"
         puts "Enter loyalty card number if available, else type nil"
         order_hash[:loyalty_num] = gets.chomp
         puts "\e[H\e[2J"
-        puts "#{order_hash[:size].colorize(:red)} #{order_hash[:type].colorize(:red)} with #{order_hash[:milk].colorize(:red)} milk and loyalty number #{order_hash[:loyalty_num].colorize(:red)}"
+        puts "#{order_hash[:size].colorize(:light_red)} #{order_hash[:type].colorize(:light_red)} with #{order_hash[:milk].colorize(:light_red)} milk and loyalty number #{order_hash[:loyalty_num].colorize(:light_red)}"
         puts "Is this order correct? yes/no/main-menu"
         response = gets.chomp.downcase
         if response == "yes"
@@ -57,15 +57,16 @@ end
 
 def editInventory(inventory)
     puts "\e[H\e[2J"
-    puts "What item would you like to edit? milk/beans/cups/sugar"
-    input = gets.chomp
+    print "What item would you like to edit?" 
+    puts " milk/ beans/ cups/ sugar".colorize(:light_red)
+    input = gets.chomp.downcase
     result = inventory.find { |item| input == item[:name]}
     puts "\e[H\e[2J"
-    puts "What is the new quantities of the selected product?"
+    puts "What is the new quantity of the selected product?"
     input = gets.chomp.to_i
     result[:qty] = input
     puts "\e[H\e[2J"
-    puts "#{result[:qty]} units of #{result[:name]}"
+    puts "#{result[:qty]}".colorize(:light_red) + " units of" + " #{result[:name]}".colorize(:light_red)
     puts "Item successfully edited"
     puts "Press enter to continue"
     gets
@@ -84,7 +85,7 @@ end
 
 def printPrice(order_hash, prices_hash)
     size = order_hash[:size]
-    puts "Total price is $#{prices_hash[size.to_sym]} "
+    puts "Total price is" + " $#{prices_hash[size.to_sym]}".colorize(:light_red)
 end
 
 def checkLoyalty(array, loyalty_num, order_hash, prices)
@@ -110,11 +111,10 @@ def checkLoyalty(array, loyalty_num, order_hash, prices)
             next
         end
     end
-
-    puts "Loyalty number not found"
-        printPrice(order_hash, prices)
-        puts "Press enter to continue"
-        gets
+    puts "\e[H\e[2J"
+    printPrice(order_hash, prices)
+    puts "Press enter to continue"
+    gets
 end
 
 
@@ -166,19 +166,19 @@ user_exit = false
 
 until user_exit
     puts "\e[H\e[2J"
-    puts TTY::Box.frame(width: TTY::Screen.width, align: :center) { "1. New Order   2. Inventory   3. Loyalty Program   4. View Todays Sales   5. End of Day  \n\n\n\n Enter the number of the option you would like" }.colorize(:light_green)
+    puts TTY::Box.frame(width: TTY::Screen.width, align: :center) { 
+        "1. New Order   2. Inventory   3. Loyalty Program   4. View Todays Sales   5. End of Day/Exit Program  \n\n\n\n Enter the number of the option you would like" 
+        }.colorize(:light_green)
     action = gets.chomp.downcase 
     if action == "1"
         inventory = coffeeOrder(inventory, loyalty, sales_hash, prices)
     elsif action == "2"
-        inventory_exit = false
         puts "\e[H\e[2J"
-        puts "--------------------------------------"
-        puts "         Options"
-        puts "1. Edit Inventory 2. Main Menu"
-        puts "--------------------------------------"
+        puts TTY::Box.frame(width: TTY::Screen.width, align: :center) {
+            "Options\n\n\n   1. Edit Inventory   2. Main Menu"
+        }.colorize(:light_green)
         inventory.each do |line|
-            puts "You have #{line[:qty]} units of #{line[:name]}"
+            puts "You have" + " #{line[:qty]}".colorize(:light_red) + " units of" + " #{line[:name]}".colorize(:light_red)
         end
         
        
@@ -188,23 +188,32 @@ until user_exit
         end
     elsif action == "3"
         puts "\e[H\e[2J"
-        puts "Create or check loyalty number? check/create/main-menu"
-        # response = gets.chomp
-        response = gets.chomp
-        if response == "check"
+        puts TTY::Box.frame(width: TTY::Screen.width, align: :center) {
+            "Options\n\n\n   1. Check Loyalty Number  2. Create New Loyalty Number   3. Main Menu"
+        }.colorize(:light_green)
+        response = gets.chomp.to_i
+        if response == 1
+            num_found = false
             puts "\e[H\e[2J"
             puts "Enter loyalty number"
             response = gets.chomp
-            loyalty.each do |line|
+            loyalty.find do |line|
                 if response == line[:loyalty_number]
                     puts "\e[H\e[2J"
                     puts "Loyalty number found"
-                    puts "#{5 - line[:qty]} more orders till next free coffee"
+                    puts "#{5 - line[:qty]}".colorize(:light_red) + " more orders till next free coffee"
                     puts "Press enter to continue"
+                    num_found = true
                     gets
                 end
             end
-        elsif response == "create"
+            if num_found == false
+                puts "\e[H\e[2J"
+                puts "Loyalty number not found"
+                puts "Press enter to continue"
+                gets
+            end
+        elsif response == 2
             new_loyalty_number = false
             until new_loyalty_number
                 random_num = Random.new()
@@ -215,28 +224,31 @@ until user_exit
                     loyalty.push({loyalty_number: random_num, qty: 0})
                     puts "\e[H\e[2J"
                     puts "New loyalty number created"
-                    puts "Your number is #{random_num}"
+                    puts "Your number is" + " #{random_num}".colorize(:light_red)
                     new_loyalty_number = true
                 end
             end
-            puts "Press enter to continue"
-            gets
+                puts "Press enter to continue"
+                gets
         end
-    
 
     elsif action == "4"
         puts "\e[H\e[2J"
-        puts "Today you have sold #{sales_hash[:small]} small coffees, #{sales_hash[:medium]} medium coffees and #{sales_hash[:large]} large coffees!"
+        print "Today you have sold " + "#{sales_hash[:small]}".colorize(:light_red) + " small coffees," 
+        print " #{sales_hash[:medium]}".colorize(:light_red) + " medium coffees and"
+        puts " #{sales_hash[:large]}".colorize(:light_red) + " large coffees!"
         puts "Press enter to return to menu"
         gets
-        next
     elsif action == "5"
         dayEnd(inventory, loyalty, sales_hash)
         puts "\e[H\e[2J"
         puts "Exiting the program will save all changes to inventory, loyalty program and sales"
-        puts "Are you sure you want to quit? yes/no"
+        puts "Are you sure you want to quit?" + " yes/no".colorize(:light_red)
         input = gets.chomp
             if input == "yes"
+                puts "\e[H\e[2J"
+                puts pastel.yellow(welcome_font.write("Farewell!!"))
+                sleep 5
                 puts "\e[H\e[2J"
                 user_exit = true
             else
