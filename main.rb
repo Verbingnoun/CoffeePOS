@@ -15,10 +15,12 @@ def coffeeOrder(inventory, loyalty, sales_hash, prices)
     order_hash = {}
     loop do
         puts "\e[H\e[2J"
-        puts "What type of coffee?"
+        print "What type of" 
+        puts " coffee?".colorize(:red)
         order_hash[:type] = gets.chomp.downcase
         puts "\e[H\e[2J"
-        puts "What size? large/medium/small"
+        print "What size?" 
+        puts " large / medium / small".colorize(:red)
         order_hash[:size] = gets.chomp.downcase
         puts "\e[H\e[2J"
         puts "Milk? full cream/soy/no"
