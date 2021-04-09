@@ -23,16 +23,18 @@ def coffeeOrder(inventory, loyalty, sales_hash, prices)
         puts " large / medium / small".colorize(:red)
         order_hash[:size] = gets.chomp.downcase
         puts "\e[H\e[2J"
-        puts "Milk? full cream/soy/no"
+        print "Milk?"
+        puts " full cream / soy / no".colorize(:red)
         order_hash[:milk] = gets.chomp.downcase
         puts "\e[H\e[2J"
-        puts "Sugar? yes/no"
+        print "Sugar?" 
+        puts " yes / no".colorize(:red)
         order_hash[:sugar] = gets.chomp.downcase
         puts "\e[H\e[2J"
-        puts "Enter loyalty card number if available, else type no"
+        puts "Enter loyalty card number if available, else type nil"
         order_hash[:loyalty_num] = gets.chomp
         puts "\e[H\e[2J"
-        puts "#{order_hash[:size]} #{order_hash[:type]}, #{order_hash[:milk]} milk and loyalty number #{order_hash[:loyalty_num]}"
+        puts "#{order_hash[:size].colorize(:red)} #{order_hash[:type].colorize(:red)} with #{order_hash[:milk].colorize(:red)} milk and loyalty number #{order_hash[:loyalty_num].colorize(:red)}"
         puts "Is this order correct? yes/no/main-menu"
         response = gets.chomp.downcase
         if response == "yes"
@@ -151,17 +153,20 @@ CSV.open("./csv/loyalty.csv") do |csv|
 end
 
 welcome_font = TTY::Font.new(:doom)
+pastel = Pastel.new
+
 
 print "\e[8;150;150t"
 puts "\e[H\e[2J"
-puts welcome_font.write("Welcome to CoffeePOS!")
-puts "If you haven't done so already, please read the documentation on how to use this program".colorize(:light_blue)
-puts "Press enter to continue to the main menu".colorize(:light_blue)
+puts pastel.yellow(welcome_font.write("Welcome to CoffeePOS!"))
+puts "If you haven't done so already, please read the documentation on how to use this program".colorize(:light_green)
+puts "Press enter to continue to the main menu".colorize(:light_green)
 gets
 user_exit = false
+
 until user_exit
     puts "\e[H\e[2J"
-    print TTY::Box.frame "1. New Order   2. Inventory  3. Loyalty Program  4. View Todays Sales  5. End of Day\n \n \n                Enter the number of the option you would like"
+    puts TTY::Box.frame(width: TTY::Screen.width, align: :center) { "1. New Order   2. Inventory   3. Loyalty Program   4. View Todays Sales   5. End of Day  \n\n\n\n Enter the number of the option you would like" }.colorize(:light_green)
     action = gets.chomp.downcase 
     if action == "1"
         inventory = coffeeOrder(inventory, loyalty, sales_hash, prices)
