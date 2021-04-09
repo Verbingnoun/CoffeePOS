@@ -4,6 +4,7 @@ require 'tty-box'
 require 'colorize'
 require 'bundler'
 require 'tty-font'
+require 'pastel'
 
 inventory = []
 loyalty = []
@@ -147,15 +148,18 @@ CSV.open("./csv/loyalty.csv") do |csv|
     end
 end
 
-puts "Welcome to CoffeePOS!"
+welcome_font = TTY::Font.new(:doom)
+
+print "\e[8;150;150t"
+puts "\e[H\e[2J"
+puts welcome_font.write("Welcome to CoffeePOS!")
+puts "If you haven't done so already, please read the documentation on how to use this program".colorize(:light_blue)
+puts "Press enter to continue to the main menu".colorize(:light_blue)
+gets
 user_exit = false
 until user_exit
     puts "\e[H\e[2J"
-    puts "---------------------------------------------------------------------------------------"
-    puts "1. New Order   2. Inventory  3. Loyalty Program  4. View Todays Sales  5. End of Day"
-    puts  
-    puts "                  Enter the number of the option you would like"
-    puts "---------------------------------------------------------------------------------------"
+    print TTY::Box.frame "1. New Order   2. Inventory  3. Loyalty Program  4. View Todays Sales  5. End of Day\n \n \n                Enter the number of the option you would like"
     action = gets.chomp.downcase 
     if action == "1"
         inventory = coffeeOrder(inventory, loyalty, sales_hash, prices)
