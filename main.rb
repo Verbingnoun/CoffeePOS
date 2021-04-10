@@ -86,13 +86,12 @@ def editInventory(inventory)
     begin
         puts "\e[H\e[2J"
         puts "#{result[:qty]}".colorize(:light_red) + " units of" + " #{result[:name]}".colorize(:light_red)
+        puts "Item successfully edited"
+        enter_to_continue
+        return inventory
     rescue
-        puts "Error! Invalid inventory selection. Please try again"
-        sleep 4
+        editInventory(inventory)
     end 
-    puts "Item successfully edited"
-    enter_to_continue
-    return inventory
 end
 
 def addToSales(size, sales_hash)
