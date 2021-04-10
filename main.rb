@@ -15,6 +15,11 @@ def multiply(num1, num2)
     result = num1 * num2
 end
 
+def enter_to_continue
+    puts "Press" + " enter".colorize(:light_green) + " to continue"
+    gets
+end
+
 
 def coffeeOrder(inventory, loyalty, sales_hash, prices)
     order_hash = {}
@@ -43,7 +48,10 @@ def coffeeOrder(inventory, loyalty, sales_hash, prices)
         puts "Is this order correct? yes/no/main-menu"
         response = gets.chomp.downcase
         if response == "yes"
-            updated_inventory = removeInventory(inventory, "cups")
+            begin
+                updated_inventory = removeInventory(inventory, "cups")
+            rescue
+            end
             updated_inventory = removeInventory(inventory, "beans")
             if order_hash[:sugar] == "yes"
                 updated_inventory = removeInventory(inventory, "sugar")
@@ -74,7 +82,6 @@ def editInventory(inventory)
     rescue
         puts "Error! Invalid inventory selection. Please try again"
         sleep 4
-        retry
     end
     begin
         puts "\e[H\e[2J"
@@ -84,8 +91,7 @@ def editInventory(inventory)
         sleep 4
     end 
     puts "Item successfully edited"
-    puts "Press enter to continue"
-    gets
+    enter_to_continue
     return inventory
 end
 
@@ -107,6 +113,7 @@ end
 
 def printPrice(order_hash, prices_hash)
     size = order_hash[:size]
+    # order_hash.find { |item| size == item}
     puts "Total price is" + " $#{prices_hash[size.to_sym]}".colorize(:light_red)
 end
 
@@ -117,8 +124,7 @@ def checkLoyalty(array, loyalty_num, order_hash, prices)
             puts "Loyalty number found"
             puts "Free Coffee! Congratulations"
             item[:qty] = 0
-            puts "Press enter to continue"
-            gets
+            enter_to_continue
             return
         elsif loyalty_num == item[:loyalty_number] and item[:qty] != 5
             item[:qty] += 1
@@ -126,8 +132,7 @@ def checkLoyalty(array, loyalty_num, order_hash, prices)
             puts "Loyalty number found"
             puts "#{5 - item[:qty]} more orders till next free coffee"
             printPrice(order_hash, prices)
-            puts "Press enter to continue"
-            gets
+            enter_to_continue
             return
         else
             next
@@ -135,8 +140,7 @@ def checkLoyalty(array, loyalty_num, order_hash, prices)
     end
     puts "\e[H\e[2J"
     printPrice(order_hash, prices)
-    puts "Press enter to continue"
-    gets
+    enter_to_continue
 end
 
 
@@ -161,13 +165,27 @@ def dayEnd (inventory, loyalty, sales_hash)
 end
 
 #open inventory.csv and save to array
+begin
+    CSV.read("./csv/inventory.csv")
+rescue
+    puts "Inventory.csv not found! Please create inventory.csv, place it in the csv folder and restart the program"
+    enter_to_continue
+end    
+    
 CSV.open("./csv/inventory.csv") do |csv|
     csv.each do |line| 
         inventory.push({name: line[0], qty: line[1].to_i})
         end
-end
+    end
 
 #open loyalty.csv and save to array
+begin
+    CSV.read("./csv/loyalty.csv")
+rescue
+    puts "loyalty.csv not found! Please create loyalty.csv, place it in the csv folder and restart the program"
+    enter_to_continue
+end 
+
 CSV.open("./csv/loyalty.csv") do |csv|
     csv.each do |line|
         loyalty.push({loyalty_number: line[0], qty: line[1].to_i})
@@ -177,8 +195,9 @@ end
 welcome_font = TTY::Font.new(:doom)
 pastel = Pastel.new
 
+# sets size of terminal window so welcome message isn't compressed
+print "\e[8;30;130t"
 
-print "\e[8;150;150t"
 puts "\e[H\e[2J"
 puts pastel.yellow(welcome_font.write("Welcome to CoffeePOS!"))
 puts "If you haven't done so already, please read the documentation on how to use this program".colorize(:light_green)
@@ -224,15 +243,14 @@ until user_exit
                     puts "\e[H\e[2J"
                     puts "Loyalty number found"
                     puts "#{5 - line[:qty]}".colorize(:light_red) + " more orders till next free coffee"
-                    puts "Press enter to continue"
+                    enter_to_continue
                     num_found = true
-                    gets
                 end
             end
             if num_found == false
                 puts "\e[H\e[2J"
                 puts "Loyalty number not found"
-                puts "Press enter to continue"
+                enter_to_continue
                 gets
             end
         elsif response == 2
@@ -250,8 +268,7 @@ until user_exit
                     new_loyalty_number = true
                 end
             end
-                puts "Press enter to continue"
-                gets
+                enter_to_continue
         end
 
     elsif action == "4"
@@ -261,8 +278,7 @@ until user_exit
         puts " #{sales_hash[:large]}".colorize(:light_red) + " large coffees!"
         print "In total you have made " 
         puts "$#{multiply(sales_hash[:small], prices[:small]) + multiply(sales_hash[:medium], prices[:medium]) + multiply(sales_hash[:large], prices[:large])}".colorize(:light_green)
-        puts "Press enter to return to menu"
-        gets
+        enter_to_continue
     elsif action == "5"
         dayEnd(inventory, loyalty, sales_hash)
         puts "\e[H\e[2J"
