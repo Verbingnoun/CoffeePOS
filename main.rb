@@ -170,12 +170,6 @@ rescue
     puts "Inventory.csv not found! Please create inventory.csv, place it in the csv folder and restart the program"
     enter_to_continue
 end    
-    
-CSV.open("./csv/inventory.csv") do |csv|
-    csv.each do |line| 
-        inventory.push({name: line[0], qty: line[1].to_i})
-        end
-    end
 
 #open loyalty.csv and save to array
 begin
@@ -250,7 +244,6 @@ until user_exit
                 puts "\e[H\e[2J"
                 puts "Loyalty number not found"
                 enter_to_continue
-                gets
             end
         elsif response == 2
             new_loyalty_number = false
